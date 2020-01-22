@@ -3,9 +3,7 @@
     <remote name="github" fetch="ssh://git@github.com/" />
     <default revision="master" remote="github" />
 
-    <project path="graphql"
-             name="trackhub/graphql"
-             remote="github"
-             revision="stefan"/>
+    <project path="graphql" name="trackhub/graphql" revision="stefan"/>
+    <project path="website" name="trackhub/website" />
 
 </manifest>
