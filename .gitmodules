@@ -1,0 +1,4 @@
+[submodule "graphql"]
+	path = graphql
+	url = git@github.com:trackhub/graphql.git
+	branch = stefan
