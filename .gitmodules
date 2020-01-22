@@ -2,3 +2,7 @@
 	path = graphql
 	url = git@github.com:trackhub/graphql.git
 	branch = stefan
+[submodule "website"]
+	path = website
+	url = git@github.com:trackhub/website.git
+	branch = master
