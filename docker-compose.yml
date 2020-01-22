@@ -1,0 +1,31 @@
+version: "3.4"
+
+services:
+  web:
+    build:
+      args:
+        PHP_V: "7.4"
+      context: ./docker/web
+      dockerfile: Dockerfile
+      target: trackhub-dev  # @TODO: Override this in production environment
+    depends_on:
+      - sql
+    environment:
+      - WEB_UID=${WEB_UID}
+    restart: on-failure
+    volumes:
+      - ./:/var/www
+
+  sql:
+    image: mariadb:10.3.17
+    environment:
+      MYSQL_ROOT_PASSWORD: 1
+      MYSQL_USER: gps
+      MYSQL_PASSWORD: 1
+      MYSQL_DATABASE: gps
+    restart: unless-stopped
+    volumes:
+      - database_data:/var/lib/mysql
+
+volumes:
+  database_data:
