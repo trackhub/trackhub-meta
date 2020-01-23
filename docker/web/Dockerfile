@@ -2,14 +2,8 @@
 FROM debian:9 AS trackhub-base
 
 RUN apt-get update && \
-    apt-get install -y apache2 apt-transport-https netcat unzip wget && \
+    apt-get install -y apache2 apt-transport-https curl netcat unzip wget && \
     rm -rf /var/lib/apt/lists/*
-
-# Configure Apache2 server
-COPY virtualhost.conf /etc/apache2/sites-enabled/000-default.conf
-COPY virtualhost-ssl.conf /etc/apache2/sites-available/000-default-ssl.conf
-
-RUN a2enmod rewrite ssl expires
 
 # Install PHP
 ENV PHP_V="7.4"
@@ -33,15 +27,33 @@ COPY php.ini /etc/php/${PHP_V}/apache2/php.ini
 RUN wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer && \
     chmod +x /usr/local/bin/composer
 
+# Install yarn and nodejs
+RUN curl -sL https://deb.nodesource.com/setup_11.x | bash -
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+RUN apt-get update && \
+    apt-get install -y nodejs && \
+    apt-get install -y --no-install-recommends yarn && \
+    rm -rf /var/lib/apt/lists/*
+
+# Configure Apache2 server
+COPY virtualhosts/track-hub.com.conf /etc/apache2/sites-available/track-hub.com.conf
+COPY virtualhosts/graphql.track-hub.com.conf /etc/apache2/sites-available/graphql.track-hub.com.conf
+
+RUN a2enmod rewrite ssl expires && \
+    a2ensite track-hub.com && \
+    a2ensite graphql.track-hub.com
+
 WORKDIR /var/www
 
 # Build the development image
 FROM trackhub-base AS trackhub-dev
 
-RUN a2ensite 000-default-ssl
+#RUN a2ensite 000-default-ssl
 
-COPY cert/server.key /etc/ssl/private/apache.key
-COPY cert/server.crt /etc/ssl/certs/apache.crt
+#COPY cert/server.key /etc/ssl/private/apache.key
+#COPY cert/server.crt /etc/ssl/certs/apache.crt
 
 RUN apt-get update && \
     apt-get install -y php${PHP_V}-xdebug && \

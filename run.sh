@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-NAME="graphql"
+NAME="trackhub"
 SERVICES="web sql"
 
 [[ $UID == 0 ]] && export WEB_UID=1000 || export WEB_UID=$UID
@@ -9,8 +9,11 @@ SERVICES="web sql"
 [[ -z $1 ]] && command="serve" || command=$1
 
 case ${command} in
+    "build")
+        docker-compose -p ${NAME} build
+        ;;
     "serve")
-        docker-compose up --build
+        docker-compose -p ${NAME} up --build
         ;;
     "clean")
         # Remove containers
@@ -31,7 +34,6 @@ case ${command} in
             docker volume rm "graphql_database_data"
         ;;
     *)
-        echo "Unknown command: ${command}" >2
+        echo "Unknown command: ${command}" >&2
         exit 1
-        ;;
 esac
